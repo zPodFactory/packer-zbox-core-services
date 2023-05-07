@@ -22,7 +22,7 @@
     ],
     "boot_wait": "10s",
     "disk_size": 51200,
-    "disk_type_id": "zeroedthick",
+    "disk_type_id": "thin",
     "format": "ovf",
     "headless": false,
     "http_directory": "http",

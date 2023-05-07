@@ -147,6 +147,7 @@ expand-hosts
 bogus-priv
 domain={domain}
 local=/{domain}/
+address=/{domain}/{ipaddress}
 server={dns}
 no-dhcp-interface=lo,eth1,eth2,eth3
 dhcp-range={zpodnet}.45,{zpodnet}.60,{netmask},12h
