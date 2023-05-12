@@ -88,22 +88,22 @@ def appliance_create_hostfile_config(properties):
 {ipaddress}     {hostname}.{domain}    {hostname}
 
 {zpodnet}.4     usagemeter
-{zpodnet}.5     nsxt
+{zpodnet}.5     nsxt nsx
 {zpodnet}.6     nsxv
 {zpodnet}.7     avi
 
 {zpodnet}.10    vcsa
 
-{zpodnet}.11    esx11
-{zpodnet}.12    esx12
-{zpodnet}.13    esx13
-{zpodnet}.14    esx14
-{zpodnet}.15    esx15
-{zpodnet}.16    esx16
-{zpodnet}.17    esx17
-{zpodnet}.18    esx18
+{zpodnet}.11    esxi11
+{zpodnet}.12    esxi12
+{zpodnet}.13    esxi13
+{zpodnet}.14    esxi14
+{zpodnet}.15    esxi15
+{zpodnet}.16    esxi16
+{zpodnet}.17    esxi17
+{zpodnet}.18    esxi18
 
-{zpodnet}.20    hcx-manager
+{zpodnet}.20    hcx
 {zpodnet}.21    hcx-cgw
 {zpodnet}.22    hcx-l2c
 
@@ -123,7 +123,7 @@ def appliance_create_hostfile_config(properties):
 
 {zpodnet}.59    rabbitmq cse voss
 
-{zpodnet}.62   vyos
+{zpodnet}.62    vyos
 EOF
 
 hostnamectl set-hostname {hostname}
