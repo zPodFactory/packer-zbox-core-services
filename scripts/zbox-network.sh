@@ -16,12 +16,16 @@ apt-get install -y \
   rsync \
   ipcalc \
   telnet \
-  netcat \
   dnsmasq \
+  iptables \
   mtr-tiny \
   wireguard \
   traceroute \
   speedometer \
-  bridge-utils
+  bridge-utils \
+  netcat-traditional
+
+# Disable FRR service
+systemctl disable frr
 
 echo '> Done'
