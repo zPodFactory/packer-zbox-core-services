@@ -9,8 +9,8 @@
 
 import subprocess
 from xml.dom.minidom import parseString
-from os import system
-from ipaddress import IPv4Network
+from ipaddress import IPv4Network, ip_network
+
 
 def appliance_get_ovf_properties():
     """
@@ -45,6 +45,13 @@ def appliance_create_network_config(properties):
 
     if properties['guestinfo.ipaddress']:
 
+        # Extract the network subnet
+        network = ip_network(f"{properties['guestinfo.ipaddress']}/{properties['guestinfo.netprefix']}", strict=False)
+
+        # Calculate all zPod subnets from mgmt subnet
+        zpod_global_subnet = f"{network.network_address}/24"
+        zpod_subnets = list(ip_network(zpod_global_subnet, strict=False).subnets(new_prefix=26))
+
         network_cmd = """cat << EOF > /etc/network/interfaces
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
@@ -61,11 +68,43 @@ iface eth0 inet static
     address {ipaddress}/{netprefix}
     gateway {gateway}
     dns-nameservers {dns}
+
+auto eth1
+iface eth1 inet manual
+    mtu 1700
+
+auto eth1.64
+iface eth1.64 inet static
+    address {gw_64}/{netprefix}
+    mtu 1700
+
+auto eth1.128
+iface eth1.128 inet static
+    mtu 1700
+    address {gw_128}/{netprefix}
+
+auto eth1.192
+iface eth1.192 inet static
+    address {gw_192}/{netprefix}
+    mtu 1700
+
+
+# NO SNAT RFC-1918
+post-up iptables -t nat -A POSTROUTING -o eth0 -s 10.0.0.0/8 -j ACCEPT
+post-up iptables -t nat -A POSTROUTING -o eth0 -s 172.16.0.0/12 -j ACCEPT
+post-up iptables -t nat -A POSTROUTING -o eth0 -s 192.168.0.0/16 -j ACCEPT
+
+# SNAT everything else
+post-up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
 EOF
 systemctl stop networking
 systemctl start networking
 """.format(
             ipaddress=properties['guestinfo.ipaddress'],
+            gw_64=zpod_subnets[1].network_address + 1,
+            gw_128=zpod_subnets[2].network_address + 1,
+            gw_192=zpod_subnets[3].network_address + 1,
             netprefix=properties['guestinfo.netprefix'],
             gateway=properties['guestinfo.gateway'],
             dns=properties['guestinfo.dns']
@@ -201,35 +240,39 @@ systemctl start ntp
 
 def appliance_create_nfs_config(properties):
     """
-    Create a NFS export from /dev/sdb disk
+    Create a NFS export from any new added storage disk
     """
 
-    fdisk_cmd = """fdisk -l | grep /dev/sdb1
-if [ $? -ne 0 ]; then
-    echo 'g\nn\n\n\n\nw\n' | fdisk /dev/sdb
-    mkfs.ext4 /dev/sdb1
-    sync
-    sleep 2
-    UUID=$(/usr/bin/lsblk -o UUID /dev/sdb1 | grep -v UUID)
-    echo "UUID=$UUID"
-    echo "UUID=$UUID" >> /etc/uuid.storage
-    sleep 30
-    echo "UUID=$UUID /FILER/STORAGE01 ext4 defaults 1 1" >> /etc/fstab
-    mkdir -vp /FILER/STORAGE01
-    mount -a
-    mkdir -vp /FILER/STORAGE01/NFS-01
-    mkdir -vp /FILER/STORAGE01/NFS-VCD
-    chmod -R 777 /FILER
-    echo "/FILER/STORAGE01/NFS-01     {zpodsubnet}(rw,no_subtree_check)" > /etc/exports
-    echo "/FILER/STORAGE01/NFS-VCD    {zpodsubnet}(rw,no_subtree_check,no_root_squash)" >> /etc/exports
-    sed -i '/^RPCMOUNTDOPTS.*$/s/^/#/' /etc/default/nfs-kernel-server
-    systemctl enable nfs-server
-    systemctl stop nfs-server
-    systemctl start nfs-server
-fi""".format(
-    zpodsubnet=properties['guestinfo.zpodsubnet']
-)
-    result = subprocess.Popen(fdisk_cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
+    disks = subprocess.run(['lsblk', '-dn', '-o', 'NAME', '-e', '11'], capture_output=True, text=True).stdout.split()
+    for disk in disks:
+        result = subprocess.run(['blkid', f'/dev/{disk}'], capture_output=True)
+        if result.returncode != 0:
+
+            fdisk_cmd = """echo 'g\nn\n\n\n\nw\n' | fdisk /dev/{disk}
+mkfs.ext4 /dev/{disk}1
+sync
+sleep 2
+UUID=$(/usr/bin/lsblk -o UUID /dev/{disk}1 | grep -v UUID)
+echo "UUID=$UUID"
+echo "UUID=$UUID" >> /etc/uuid.storage
+sleep 30
+echo "UUID=$UUID /FILER/STORAGE01 ext4 defaults 1 1" >> /etc/fstab
+mkdir -vp /FILER/STORAGE01
+mount -a
+mkdir -vp /FILER/STORAGE01/NFS-01
+mkdir -vp /FILER/STORAGE01/NFS-VCD
+chmod -R 777 /FILER
+echo "/FILER/STORAGE01/NFS-01     {zpodsubnet}(rw,no_subtree_check)" > /etc/exports
+echo "/FILER/STORAGE01/NFS-VCD    {zpodsubnet}(rw,no_subtree_check,no_root_squash)" >> /etc/exports
+sed -i '/^RPCMOUNTDOPTS.*$/s/^/#/' /etc/default/nfs-kernel-server
+systemctl enable nfs-server
+systemctl stop nfs-server
+systemctl start nfs-server
+            """.format(
+                disk=disk,
+                zpodsubnet=properties['guestinfo.zpodsubnet']
+            )
+            result = subprocess.Popen(fdisk_cmd, shell=True, stdout=subprocess.PIPE).stdout.read()
 
 def appliance_update_credentials(properties):
     """
