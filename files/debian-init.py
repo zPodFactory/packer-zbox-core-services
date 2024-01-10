@@ -125,12 +125,9 @@ def appliance_create_hostfile_config(properties):
         hostfile_cmd = """cat << EOF > /etc/hosts
 127.0.0.1       localhost
 {ipaddress}     {hostname}.{domain}    {hostname}
+{zpodnet}.3     usagemeter
 
-{zpodnet}.4     usagemeter
-{zpodnet}.5     nsxt nsx
-{zpodnet}.6     nsxv
-{zpodnet}.7     avi
-
+{zpodnet}.9     nsxv
 {zpodnet}.10    vcsa
 
 {zpodnet}.11    esxi11
@@ -142,16 +139,15 @@ def appliance_create_hostfile_config(properties):
 {zpodnet}.17    esxi17
 {zpodnet}.18    esxi18
 
-{zpodnet}.20    hcx
-{zpodnet}.21    hcx-cgw
-{zpodnet}.22    hcx-l2c
+{zpodnet}.20    nsx nsxt
+{zpodnet}.21    nsx21
+{zpodnet}.22    nsx22
+{zpodnet}.23    nsx23
 
-{zpodnet}.25    cloudbuilder
+{zpodnet}.25    cloudbuilder vcf
 {zpodnet}.26    sddcmgr
 
-{zpodnet}.28    srm
-{zpodnet}.29    vr
-
+{zpodnet}.29    vrlcm
 {zpodnet}.30    vrops
 {zpodnet}.31    vrli log
 {zpodnet}.36    vrni
@@ -160,9 +156,20 @@ def appliance_create_hostfile_config(properties):
 {zpodnet}.40    vcd cloud
 {zpodnet}.41    vcda
 
-{zpodnet}.59    rabbitmq cse voss
+{zpodnet}.45    hcx
+{zpodnet}.46    hcx-cgw
+{zpodnet}.47    hcx-l2c
+
+#
+# 50-60 DHCP Range
+#
 
 {zpodnet}.62    vyos
+
+# VLAN 192 (NSX - Edge Cluster / Edge Nodes)
+{zpodnet}.250   edgecluster-vip
+{zpodnet}.251   edgenode251
+{zpodnet}.252   edgenode252
 EOF
 
 hostnamectl set-hostname {hostname}
@@ -188,8 +195,9 @@ domain={domain}
 local=/{domain}/
 address=/{domain}/{ipaddress}
 server={dns}
+server=/in-addr.arpa/{dns}
 no-dhcp-interface=lo,eth1,eth2,eth3
-dhcp-range={zpodnet}.45,{zpodnet}.60,{netmask},12h
+dhcp-range={zpodnet}.50,{zpodnet}.60,{netmask},12h
 dhcp-option=option:router,{gateway}
 dhcp-option=option:ntp-server,{ipaddress}
 dhcp-option=option:domain-search,{domain}
@@ -261,6 +269,7 @@ mkdir -vp /FILER/STORAGE01
 mount -a
 mkdir -vp /FILER/STORAGE01/NFS-01
 mkdir -vp /FILER/STORAGE01/NFS-VCD
+mkdir -vp /FILER/STORAGE01/VCF-BACKUPS
 chmod -R 777 /FILER
 echo "/FILER/STORAGE01/NFS-01     {zpodsubnet}(rw,no_subtree_check)" > /etc/exports
 echo "/FILER/STORAGE01/NFS-VCD    {zpodsubnet}(rw,no_subtree_check,no_root_squash)" >> /etc/exports
