@@ -27,6 +27,10 @@ echo ">> zBox $(cat /etc/debian_version)" | tee -a /etc/issue /etc/issue.net > /
 echo ">>" | tee -a /etc/issue /etc/issue.net > /dev/null
 sed -i 's/#Banner none/Banner \/etc\/issue.net/g' /etc/ssh/sshd_config
 
+# VCF SSH Security fixes for backup configuration
+echo 'HostKeyAlgorithms=+ssh-rsa' >> /etc/ssh/sshd_config
+echo 'PubkeyAcceptedAlgorithms=+ssh-rsa' >> /etc/ssh/sshd_config
+
 echo '> Enable rc.local facility for debian-init.py'
 cat << EOF > /etc/rc.local
 #!/bin/sh -e
