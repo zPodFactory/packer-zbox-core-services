@@ -60,7 +60,4 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/microso
 # Update APT repository package list
 apt-get update
 
-
-
-
 echo '> Done'
