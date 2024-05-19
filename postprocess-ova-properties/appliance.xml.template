@@ -1,9 +1,9 @@
 <ProductSection ovf:required="true">
     <Info>zPodFactory toolbox appliance</Info>
-    <Product>zBox Appliance</Product>
+    <Product>zBox Core Services Appliance</Product>
     <Vendor>Timo Sugliani</Vendor>
     <Version>{{APPLIANCE_VERSION}}</Version>
-    <ProductUrl>https://github.com/zPodFactory/packer-zbox</ProductUrl>
+    <ProductUrl>https://github.com/zPodFactory/packer-zbox-core-services</ProductUrl>
     <VendorUrl>https://github.com/zPodFactory</VendorUrl>
     <Category>Networking</Category>
     <Property ovf:key="guestinfo.hostname" ovf:type="string" ovf:userConfigurable="true" ovf:value="">
