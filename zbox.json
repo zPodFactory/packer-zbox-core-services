@@ -111,12 +111,33 @@
         "scripts/zbox-settings.sh",
         "scripts/zbox-shell.sh",
         "scripts/zbox-vmware.sh",
+        "scripts/zbox-api.sh",
         "scripts/zbox-cleanup.sh"
       ]
     },
     {
       "destination": "$HOME/.poshthemes/zbox.omp.json",
       "source": "files/zbox.omp.json",
+      "type": "file"
+    },
+    {
+      "destination": "/etc/systemd/system/traefik.service",
+      "source": "files/traefik.service",
+      "type": "file"
+    },
+    {
+      "destination": "/etc/systemd/system/zboxapi.service",
+      "source": "files/zboxapi.service",
+      "type": "file"
+    },
+    {
+      "destination": "/etc/traefik/traefik.yml",
+      "source": "files/traefik.yml",
+      "type": "file"
+    },
+    {
+      "destination": "/etc/traefik/dynamic/certificates.yml",
+      "source": "files/certificates.yml",
       "type": "file"
     }
   ]

@@ -59,8 +59,6 @@ def appliance_create_network_config(properties):
         )
 
         network_cmd = """
-ip addr flush dev eth0
-ip link set dev eth0 down
 systemctl stop networking
 cat << EOF > /etc/network/interfaces
 # This file describes the network interfaces available on your system
