@@ -175,7 +175,6 @@ expand-hosts
 bogus-priv
 domain={domain}
 local=/{domain}/
-address=/{domain}/{ipaddress}
 server={dns}
 server=/in-addr.arpa/{dns}
 no-dhcp-interface=lo,eth1,eth2,eth3
