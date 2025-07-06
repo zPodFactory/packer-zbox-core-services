@@ -64,6 +64,8 @@ cat << EOF > /etc/network/interfaces
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
+source /etc/network/interfaces.d/*
+
 # The loopback network interface
 auto lo
 iface lo inet loopback
@@ -117,15 +119,6 @@ iface eth1.192 inet static
     address {gw_192}/{netprefix}
     mtu 1700
 
-
-# NO SNAT RFC-1918
-post-up iptables -t nat -A POSTROUTING -o eth0 -s 10.0.0.0/8 -j ACCEPT
-post-up iptables -t nat -A POSTROUTING -o eth0 -s 172.16.0.0/12 -j ACCEPT
-post-up iptables -t nat -A POSTROUTING -o eth0 -s 192.168.0.0/16 -j ACCEPT
-
-# SNAT everything else
-post-up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-
 EOF
 systemctl start networking
 """.format(
@@ -178,7 +171,7 @@ local=/{domain}/
 server={dns}
 server=/in-addr.arpa/{dns}
 no-dhcp-interface=lo,eth1,eth2,eth3
-dhcp-range={zpodnet}.50,{zpodnet}.60,{netmask},12h
+dhcp-range={zpodnet}.50,{zpodnet}.60,{netmask},5m
 dhcp-option=option:router,{gateway}
 dhcp-option=option:ntp-server,{ipaddress}
 dhcp-option=option:domain-search,{domain}

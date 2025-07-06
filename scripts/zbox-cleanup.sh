@@ -15,7 +15,6 @@ auto lo
 iface lo inet loopback
 EOF
 
-df -h
 duf
 
 # Clean up
@@ -30,6 +29,7 @@ echo '> Removing package manager unused files'
 apt-get autoremove -y
 apt-get clean -y
 apt-get autoclean -y
+
 
 echo '> Removing unused locales...'
 DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge
@@ -58,7 +58,6 @@ echo '> Zeroing device to reduce resulting VMDK & OVA export...'
 dd if=/dev/zero of=/EMPTY bs=1M || true; sync; sleep 1; sync
 rm -f /EMPTY; sync; sleep 1; sync
 
-df -h
 duf
 
 echo '> Done'

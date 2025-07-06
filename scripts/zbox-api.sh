@@ -22,8 +22,8 @@ pipx install zboxapi
 ##
 
 # Variables
-URL_TO_TRAEFIK_TAR_GZ="https://github.com/traefik/traefik/releases/download/v2.11.2/traefik_v2.11.2_linux_amd64.tar.gz"
-TRAFFIC_FILE_NAME="traefik_v2.11.2_linux_amd64.tar.gz"
+URL_TO_TRAEFIK_TAR_GZ="https://github.com/traefik/traefik/releases/download/v3.4.3/traefik_v3.4.3_linux_amd64.tar.gz"
+TRAFFIC_FILE_NAME="traefik_v3.4.3_linux_amd64.tar.gz"
 TRAFFIC_BINARY_NAME="traefik"
 INSTALL_DIR="/usr/local/bin"
 
@@ -48,6 +48,9 @@ mv "$TEMP_DIR/$TRAFFIC_BINARY_NAME" $INSTALL_DIR
 
 # Set executable permissions on the binary
 chmod +x "$INSTALL_DIR/$TRAFFIC_BINARY_NAME"
+
+# Set ownership to root:root
+chown root:root $INSTALL_DIR/$TRAFFIC_BINARY_NAME
 
 
 # Prep Traefik configuration directory
