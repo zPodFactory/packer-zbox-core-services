@@ -9,6 +9,7 @@
 echo '> Installing Network utilities...'
 
 apt-get install -y \
+  frr \
   ntp \
   curl \
   wget \
@@ -39,5 +40,8 @@ wget -qO /usr/local/bin/wakey https://github.com/jonathanruiz/wakey/releases/lat
 #
 curl -L https://github.com/hanshuaikang/Nping/releases/download/v0.4.0/nping-x86_64-unknown-linux-gnu.tar.gz | tar -xz && install -m 755 nping /usr/local/bin/nping
 
+
+# Disable FRR service
+systemctl disable frr
 
 echo '> Done'
