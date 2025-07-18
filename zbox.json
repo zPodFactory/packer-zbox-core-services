@@ -121,6 +121,11 @@
       "type": "file"
     },
     {
+      "destination": "/etc/zboxapi.conf",
+      "source": "files/zboxapi.conf",
+      "type": "file"
+    },
+    {
       "destination": "/etc/systemd/system/traefik.service",
       "source": "files/traefik.service",
       "type": "file"
